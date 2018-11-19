@@ -3,7 +3,9 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
-
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable';
 
 
 class App extends React.Component {
@@ -31,10 +33,12 @@ class App extends React.Component {
 
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      this.setState({ username: '', 
-      password: '', 
-      user,  
-      message: `user ${user.name} logged in`})
+      this.setState({
+        username: '',
+        password: '',
+        user,
+        message: `user ${user.name} logged in`
+      })
       setTimeout(() => {
         this.setState({ message: null })
       }, 3000)
@@ -66,7 +70,7 @@ class App extends React.Component {
   logout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
   }
-  create = async (event) => {
+  create = (event) => {
     event.preventDefault()
     const blogObject = {
       title: this.state.title,
@@ -74,7 +78,7 @@ class App extends React.Component {
       url: this.state.url
     }
 
-    
+
 
     blogService
       .create(blogObject)
@@ -88,81 +92,45 @@ class App extends React.Component {
           this.setState({ message: null })
         }, 5000)
       })
-      
+
   }
 
   render() {
     const loginForm = () => (
-      <div>
-        <h2>log in to application</h2>
-        <form onSubmit={this.login}>
-          <div>
-            username:
-          <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleFieldChange}
-            />
-          </div>
-          <div>
-            password:
-          <input
-              type="text"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleFieldChange}
-            />
-          </div>
-          <button type="submit">login</button>
-
-        </form>
-
-      </div>
-
+      <Togglable buttonLabel="login">
+        <LoginForm
+          handleFieldChange={this.handleFieldChange}
+           handleSubmit={this.login}
+           username={this.state.username}
+           password={this.state.password}
+        />
+      </Togglable>
     )
+
+    const blogForm = () => {
+      <Togglable buttonLabel="new blog" ref={component => this.blogForm=component}>
+        <BlogForm
+                create={this.create}
+                handleFieldChange={this.handleFieldChange}
+                author={this.state.author}
+                title={this.state.title}
+                url={this.state.url}
+              />
+      </Togglable>
+    }
+
 
     return (
       <div>
-        <Notification message={this.state.message}/>
+        <Notification message={this.state.message} />
         {this.state.user === null ?
 
-          loginForm() :
+          loginForm()
+          :
           <div>
             <h2>blogs</h2>
             <p>{this.state.user.name} logged in <button onClick={this.logout}>logout</button></p>
-            <h2>create a new</h2>
-            <form onSubmit={this.create}>
-              <div>
-                title:
-                <input
-                  type="text"
-                  name="title"
-                  value={this.state.title}
-                  onChange={this.handleFieldChange}
-                />
-              </div>
-              <div>
-                author:
-                <input
-                  type="text"
-                  name="author"
-                  value={this.state.author}
-                  onChange={this.handleFieldChange}
-                />
-              </div>
-              <div>
-                url:
-                <input
-                  type="text"
-                  name="url"
-                  value={this.state.url}
-                  onChange={this.handleFieldChange}
-                />
-              </div>
-              <button type="submit">create</button>
-            </form>
-
+            {blogForm()}
             {this.state.blogs.map(blog =>
               <Blog key={blog._id} blog={blog} />
             )}
