@@ -1,6 +1,5 @@
 import React from 'react'
 import Blog from './components/Blog'
-import BlogInfo from './components/BlogInfo'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
@@ -19,7 +18,6 @@ class App extends React.Component {
       title: '',
       author: '',
       url: '',
-      blog: null,
       user: null,
       message: null
     }
@@ -70,6 +68,13 @@ class App extends React.Component {
   }
   logout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
+    this.setState({
+      message: 'some user logged out',
+    })
+    setTimeout(() => {
+      this.setState({ message: null })
+    }, 3000)
+    this.setState({ user: null })
   }
   create = (event) => {
     event.preventDefault()
@@ -93,9 +98,7 @@ class App extends React.Component {
           this.setState({ message: null })
         }, 5000)
       })
-
   }
-
 
   render() {
     const loginForm = () => (
@@ -118,17 +121,8 @@ class App extends React.Component {
         />
       </Togglable>
     )
-    const blogInfo = ({ blog, user }) => (
-      <Togglable buttonLabel="info" ref={component => this.blogForm = component}>
-        <BlogInfo key={blog._id} blog={blog} user={user} />
-      </Togglable>
-    )
-
-
     return (
-
       <div>
-
         <Notification message={this.state.message} />
         {this.state.user === null ?
           loginForm() :
@@ -138,10 +132,10 @@ class App extends React.Component {
             {blogForm()}
             {this.state.blogs
               .map(blog =>
-                <div className="blog">
-                  <Blog key={blog._id} blog={blog} />
-                  {blogInfo(blog = { blog })}
-                </div>
+                <Blog
+                  key={blog._id}
+                  blog={blog}
+                />
               )}
 
           </div>
