@@ -1,0 +1,1 @@
+tehtävät 17, 18 tehty =yht. 2 tehtävää
